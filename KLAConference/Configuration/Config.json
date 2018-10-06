@@ -1,0 +1,14 @@
+﻿  {
+    "StartTime": "8",
+    "EndTime": "16",
+    "Breaks": [
+      {
+        "StartTime": "10:45",
+        "EndTime": "11:00"
+      },
+      {
+        "StartTime": "14:30",
+        "EndTime": "14:45"
+      }
+    ]
+  }
