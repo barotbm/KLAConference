@@ -68,8 +68,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Entities\Config.cs" />
-    <Compile Include="Entities\OrganizedConference.cs" />
     <Compile Include="Entities\ResultType.cs" />
+    <Compile Include="Entities\ScheduledConference.cs" />
     <Compile Include="Entities\Session.cs" />
     <Compile Include="Entities\TalkType.cs" />
     <Compile Include="UI\Shell.xaml.cs">
