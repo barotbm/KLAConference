@@ -68,13 +68,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Entities\Config.cs" />
-    <Compile Include="Entities\ResultType.cs" />
     <Compile Include="Entities\ScheduledConference.cs" />
+    <Compile Include="Entities\ResultType.cs" />
     <Compile Include="Entities\Session.cs" />
     <Compile Include="Entities\TalkType.cs" />
+    <Compile Include="UI\IShellViewModel.cs" />
     <Compile Include="UI\Shell.xaml.cs">
       <DependentUpon>Shell.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\ShellViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Talk.cs" />
