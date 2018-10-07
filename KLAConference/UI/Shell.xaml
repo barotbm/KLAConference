@@ -10,7 +10,7 @@
         <Label Content="KLA-Tencor Engineering Conference 2018" HorizontalAlignment="Center" Margin="0" FontSize="26" DockPanel.Dock="Top" />
         <Separator DockPanel.Dock="Top" />
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
-            <Button Content="Load Talks For Conference" DockPanel.Dock="Top" Width="200" Margin="5" />
+            <Button Content="Load Talks For Conference" Command="{Binding LoadTalksCommand}" DockPanel.Dock="Top" Width="200" Margin="5" />
             <Button Content="Get Schedule" DockPanel.Dock="Top" Width="200"  Margin="5"/>
             <Label Content="{Binding Status}" />
         </StackPanel>

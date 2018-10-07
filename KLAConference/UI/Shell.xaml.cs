@@ -8,15 +8,13 @@ namespace KLAConference.UI
     /// </summary>
     public partial class Shell : Window
     {
-        /* Ideally most of the code here should go to ViewModel
-         * 
-         */
-
-        #region Constructor
+       #region Constructor
         public Shell()
         {
             InitializeComponent();
-            this.DataContext = this;
+
+            // Note: Should inject the viewmodel using Unity and Interface
+            this.DataContext = new ShellViewModel();
         }
         #endregion        
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KLAConference.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -42,10 +43,37 @@ namespace KLAConference.UI
 
         public ShellViewModel()
         {
-
+            LoadTalksCommand = new RelayCommand(ExecuteLoadTalks);
+            GetScheduleCommnd = new RelayCommand(ExecuteGetSchedule);
         }
 
         #endregion
+
+        void ExecuteLoadTalks(object parameter)
+        {
+            // Create OpenFileDialog 
+            Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
+
+            // Set filter for file extension and default file extension 
+          //  dialog.DefaultExt = ".csv";
+           // dialog.Filter = "CSV Files (*.csv)|*.csv";
+            dialog.Filter = "Json files (*.json)|*.json";
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = dialog.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if (result == true)
+            {
+                // Open document 
+                string filename = dialog.FileName;
+            }
+        }
+
+        void ExecuteGetSchedule(object parameter)
+        {
+
+        }
 
         #region INotifyPropertyChanged       
 

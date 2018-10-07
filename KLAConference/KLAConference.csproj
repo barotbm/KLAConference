@@ -72,6 +72,8 @@
     <Compile Include="Entities\ResultType.cs" />
     <Compile Include="Entities\Session.cs" />
     <Compile Include="Entities\TalkType.cs" />
+    <Compile Include="Infrastructure\JsonHelper.cs" />
+    <Compile Include="Infrastructure\RelayCommand.cs" />
     <Compile Include="UI\IShellViewModel.cs" />
     <Compile Include="UI\Shell.xaml.cs">
       <DependentUpon>Shell.xaml</DependentUpon>
