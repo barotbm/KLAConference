@@ -104,6 +104,8 @@ namespace KLAConference.UI
 
             // Set filter for file extension and default file extension 
             dialog.Filter = "Json files (*.json)|*.json";
+            dialog.InitialDirectory = Path.Combine(System.IO.Path.GetDirectoryName(
+      System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase), "TestInput");
 
             Nullable<bool> result = dialog.ShowDialog();
 
