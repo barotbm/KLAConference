@@ -1,13 +1,24 @@
 ﻿using NodaTime;
+using System;
 using System.Collections.Generic;
 
 namespace KLAConference.Entities
 {
     public class Config
     {
-        public LocalTime StartTime { get; set; }
+        public int StartTime { get; set; }
 
-        public LocalTime EndTime { get; set; }
+        public int EndTime { get; set; }
+
+        public LocalTime GetStartTime()
+        {
+            return new LocalTime(StartTime, 0, 0);
+        }
+
+        public LocalTime GetEndTime()
+        {
+            return new LocalTime(EndTime, 0, 0);
+        }
 
         public List<Break> Breaks { get; set; }
 
@@ -19,7 +30,19 @@ namespace KLAConference.Entities
 
     public class Break
     {
-        public LocalTime StartTime { get; set; }
-        public LocalTime EndTime { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
+
+        public LocalTime GetStartTime()
+        {
+            var dateTime = Convert.ToDateTime(StartTime);
+            return new LocalTime(dateTime.Hour, dateTime.Minute, 0);
+        }
+
+        public LocalTime GetEndTime()
+        {
+            var dateTime = Convert.ToDateTime(EndTime);
+            return new LocalTime(dateTime.Hour, dateTime.Minute, 0);
+        }
     }
 }

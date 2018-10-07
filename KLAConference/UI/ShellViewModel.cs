@@ -1,13 +1,17 @@
-﻿using KLAConference.Entities;
+﻿using KLAConference.Algorithm;
+using KLAConference.Entities;
 using KLAConference.Infrastructure;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -18,10 +22,28 @@ namespace KLAConference.UI
         #region Fields
 
         private string _status = "";
+        private ConferenceEngine _conferenceEngine;
+        private List<Talk> _talks;
+        private bool _isResultAvailable = false;
 
         #endregion
 
         #region Properties
+
+        public bool IsResultAvailable
+        {
+            get
+            {
+                return _isResultAvailable;
+            }
+            set
+            {
+                _isResultAvailable = value;
+                OnPropertyRaised("IsResultAvailable");
+            }
+        }
+
+        public ObservableCollection<Talk> ScheduledTalks { get; private set; } = new ObservableCollection<Talk>();
 
         public string Status
         {
@@ -47,13 +69,36 @@ namespace KLAConference.UI
 
         public ShellViewModel()
         {
-            LoadTalksCommand = new RelayCommand(ExecuteLoadTalks);
-            GetScheduleCommnd = new RelayCommand(ExecuteGetSchedule);
+            LoadTalksCommand = new AsyncCommand(ExecuteLoadTalks);
+            GetScheduleCommnd = new AsyncCommand(ExecuteGetSchedule);
+
+            LoadInfrastructure();
         }
 
         #endregion
 
-        void ExecuteLoadTalks(object parameter)
+        private async void LoadInfrastructure()
+        {
+            Status = "Loading...........";
+            await Task.Delay(2000);
+            // Load the infrastructure in the background
+            // Note: Ideally the engine  should be loaded using Unity to avoid tight coupling
+            await Task.Run(() =>
+            {
+
+                string filename = ConfigurationManager.AppSettings[Constants.ConfigPath];
+                Config config;
+                using (StreamReader r = new StreamReader(filename))
+                {
+                    string json = r.ReadToEnd();
+                    config = JsonConvert.DeserializeObject<Config>(json);
+                }
+                _conferenceEngine = new ConferenceEngine(config);
+            });
+            Status = "Ready";
+        }
+
+        async Task ExecuteLoadTalks()
         {
             // Create OpenFileDialog 
             var dialog = new OpenFileDialog();
@@ -65,18 +110,65 @@ namespace KLAConference.UI
 
             if (result == true)
             {
-                string filename = dialog.FileName;
-                using (StreamReader r = new StreamReader(filename))
+                Status = "Loading Talks......";
+                IsResultAvailable = false;
+
+                await Task.Run(() =>
                 {
-                    string json = r.ReadToEnd();
-                    List<Talk> items = JsonConvert.DeserializeObject<List<Talk>>(json);
-                }
+                    string filename = dialog.FileName;
+                    using (StreamReader r = new StreamReader(filename))
+                    {
+                        string json = r.ReadToEnd();
+                        _talks = JsonConvert.DeserializeObject<List<Talk>>(json);
+
+                        foreach (var talk in _talks)
+                        {
+                            // Assumption: Talk's name should not have any other numbers
+                            Match m = Regex.Match(talk.Name, @"\d+");
+                            if (string.IsNullOrEmpty(m.Value))
+                            {
+                                talk.Duration = 5;
+                            }
+                            else
+                            {
+                                talk.Duration = Convert.ToInt32(m.Value);
+                            }
+                        }
+                    }
+                });
+
+                Status = "Loaded Talks, Click To Get Schedule";
             }
         }
 
-        void ExecuteGetSchedule(object parameter)
+        async Task ExecuteGetSchedule()
         {
+            Status = "Getting the final schedule.....";
+            ScheduledConference result = null;
+            await Task.Run(() =>
+            {
+               result = _conferenceEngine.Run(_talks);
+            });
 
+            if (result == null)
+            {
+                Status = "Internal failure";
+                return;
+            }
+            
+            if(result.Type == ResultType.Success)
+            {
+                ScheduledTalks = new ObservableCollection<Talk>(result.OrderedTalks);
+                IsResultAvailable = true;
+                OnPropertyRaised("ScheduledTalks");
+            }
+            else
+            {
+
+            }
+            
+
+            Status = result.Type.ToString();
         }
 
         #region INotifyPropertyChanged       

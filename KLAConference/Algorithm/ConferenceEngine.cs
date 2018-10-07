@@ -3,7 +3,7 @@ using NodaTime;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
+using KLAConference.Infrastructure;
 namespace KLAConference.Algorithm
 {
     public class ConferenceEngine : IConferenceEngine
@@ -27,6 +27,7 @@ namespace KLAConference.Algorithm
         public ConferenceEngine(Config config)
         {
             _config = config;
+            CreateSessions(_config);
         }
         #endregion
 
@@ -70,9 +71,13 @@ namespace KLAConference.Algorithm
                     }
                     result.Type = ResultType.Success;
                 }
-
+                
                 for (int i = 0; i < _sessions.Count(); i++)
                 {
+                    // Clear previously scheduled talks if any
+                    if (_sessions[i].Talks.Any())
+                        _sessions[i].Talks.Clear();
+
                     var duration = _sessions[i].Duration;
                     var backTrackTalkId = -1;
                     var retryCount = 0;
@@ -88,14 +93,36 @@ namespace KLAConference.Algorithm
                     foreach (var talk in _sessions[i].Talks)
                     {
                         talk.SessionId = _sessions[i].Id;
-                        result.OrderedTalks.Add(talk);
+                        //result.OrderedTalks.Add(talk);
                     }
                 }
             }
             catch (System.Exception ex)
             {
-                EventLog.WriteEntry(ex.Message, "KLA-Tencor conference application exception");
+                // Note: Should log the exception
                 result.Type = ResultType.Exception;
+            }
+
+            _sessions = _sessions.OrderBy(c => c.Id).ToList();
+            var prevTalk = default(Talk);
+
+            foreach (var session in _sessions)
+            {
+                foreach (var currentTalk in session.Talks)
+                {
+                    if (!result.OrderedTalks.Any())
+                    {
+                        currentTalk.StartTime = _config.GetStartTime();
+                        
+                    }
+                    else
+                    {
+                        currentTalk.StartTime = LocalTime.Add(prevTalk.StartTime, Period.FromMinutes(prevTalk.Duration));
+                    }
+
+                    result.OrderedTalks.Add(currentTalk);
+                    prevTalk = currentTalk;
+                }
             }
 
             return result;
@@ -104,28 +131,37 @@ namespace KLAConference.Algorithm
         private bool AddTalksToSession(IEnumerable<Talk> talks, Session currentSession, int backTrackTalkId)
         {
             var isSuccess = false;
+
+            if(currentSession.Type == SessionType.Break)
+            {
+                var breakAsTalk = new Talk();
+                breakAsTalk.Id = -1; // Distinguish the break as invalid Talk
+                breakAsTalk.Duration = (currentSession.EndTime - currentSession.StartTime).Minutes;
+                breakAsTalk.Name = $"Break ({breakAsTalk.Duration})";
+                currentSession.Talks.Add(breakAsTalk);
+                return true;
+            }
+
             foreach (var talk in talks)
             {
                 // Proceed only if talk is not allocated to any session
-                if (talk.SessionId != 0 && talk.Id != backTrackTalkId && talk.Duration <= currentSession.Duration)
+                if (talk.SessionId == 0 && talk.Id != backTrackTalkId && talk.Duration <= currentSession.Duration)
                 {
                     if (currentSession.Duration - talk.Duration == 0)
                     {
                         // Found the talks for the session
                         currentSession.Talks.Add(talk);
-                        talk.SessionId = currentSession.Id;
+                       // talk.SessionId = currentSession.Id;
                         isSuccess = true;
                         break;
                     }
-                    //else if (duration - talk.Duration < 0) // handled in the first if loop
-                    //{
-                    //    // Handle backtracking
-                    //}
                     else
                     {
-                        talk.SessionId = currentSession.Id;
+                       // talk.SessionId = currentSession.Id;
                         currentSession.Duration -= talk.Duration;
                     }
+
+                    currentSession.Talks.Add(talk);
                 }
             }
 
@@ -152,21 +188,22 @@ namespace KLAConference.Algorithm
                 sessionId++;
                 // Handle first session
                 if (i == 0)
-                    AddSession(config.StartTime, config.Breaks[i].StartTime, sessionId, SessionType.Talk);
+                    AddSession(config.GetStartTime(), config.Breaks[i].GetStartTime(), sessionId, SessionType.Talk);
                 else
-                    AddSession(config.Breaks[i - 1].EndTime, config.Breaks[i].StartTime, sessionId, SessionType.Talk);
+                    AddSession(config.Breaks[i - 1].GetEndTime(), config.Breaks[i].GetStartTime(), sessionId, SessionType.Talk);
 
                 // Add Break as a session
-                AddSession(config.Breaks[i].StartTime, config.Breaks[i].EndTime, sessionId++, SessionType.Break);
+                AddSession(config.Breaks[i].GetStartTime(), config.Breaks[i].GetEndTime(), ++sessionId, SessionType.Break);
 
                 // Handle last session
                 if (i == config.Breaks.Count() - 1)
                 {
-                    AddSession(config.Breaks[i].EndTime, config.EndTime, sessionId++, SessionType.Talk);
+                    AddSession(config.Breaks[i].GetEndTime(), config.GetEndTime(), ++sessionId, SessionType.Talk);
                 }
             }
 
             config.TalkTime += _sessions.Sum(c => c.Duration);
+            _sessions = _sessions.OrderBy(c => c.Duration).ToList();
         }
 
         private void AddSession(LocalTime startTime, LocalTime endTime, int sessionId, SessionType type)
@@ -176,7 +213,7 @@ namespace KLAConference.Algorithm
             session.StartTime = startTime;
             session.EndTime = endTime;
             session.Type = type;
-            session.Duration = (session.EndTime - session.StartTime).Minutes;
+            session.Duration = LocalTime.Subtract(session.EndTime, session.StartTime).TotalMinutes();
             _sessions.Add(session);
         }
 

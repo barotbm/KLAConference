@@ -1,4 +1,6 @@
-﻿namespace KLAConference.Entities
+﻿using NodaTime;
+
+namespace KLAConference.Entities
 {
     /// <summary>
     /// Represents the entity for Talk 
@@ -13,6 +15,8 @@
         public int Id { get; set; }
 
         public string Name { get; set; }
+
+        public LocalTime StartTime { get; set; }
 
         public long Duration { get; set; }
 

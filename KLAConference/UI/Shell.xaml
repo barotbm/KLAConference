@@ -4,17 +4,29 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KLAConference.UI"
+        xmlns:infra="clr-namespace:KLAConference.Infrastructure"
         mc:Ignorable="d"
         Title="KLA-Tencor" Height="450" Width="800">
+    <Window.Resources>
+        <infra:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
     <DockPanel>
         <Label Content="KLA-Tencor Engineering Conference 2018" HorizontalAlignment="Center" Margin="0" FontSize="26" DockPanel.Dock="Top" />
         <Separator DockPanel.Dock="Top" />
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
             <Button Content="Load Talks For Conference" Command="{Binding LoadTalksCommand}" DockPanel.Dock="Top" Width="200" Margin="5" />
-            <Button Content="Get Schedule" DockPanel.Dock="Top" Width="200"  Margin="5"/>
-            <Label Content="{Binding Status}" />
+            <Button Content="Generate Scheduled Talks" Command="{Binding GetScheduleCommnd}" DockPanel.Dock="Top" Width="200"  Margin="5"/>
+            <Label Content="Status: " FontFamily="Bold" Margin="5" />
+            <Label Content="{Binding Status}" FontFamily="Bold" Margin="5" />
         </StackPanel>
         <Separator DockPanel.Dock="Top" />
-        <Grid DockPanel.Dock="Top"></Grid>
+        <Grid DockPanel.Dock="Top" Margin="5">
+            <DataGrid ItemsSource="{Binding ScheduledTalks}" AutoGenerateColumns="False" Visibility="{Binding IsResultAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Start Time" Binding="{Binding StartTime}" />
+                    <DataGridTextColumn Header="Talk" Binding="{Binding Name}" Width="725" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
     </DockPanel>
 </Window>

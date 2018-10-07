@@ -41,6 +41,7 @@
       <HintPath>..\packages\NodaTime.2.4.0\lib\net45\NodaTime.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
@@ -68,11 +69,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Entities\Config.cs" />
+    <Compile Include="Entities\Constants.cs" />
     <Compile Include="Entities\ScheduledConference.cs" />
     <Compile Include="Entities\ResultType.cs" />
     <Compile Include="Entities\Session.cs" />
     <Compile Include="Entities\SessionType.cs" />
     <Compile Include="Entities\TalkType.cs" />
+    <Compile Include="Infrastructure\AsyncCommand.cs" />
+    <Compile Include="Infrastructure\BoolToVisibilityConverter.cs" />
+    <Compile Include="Infrastructure\NodaTimeExtension.cs" />
     <Compile Include="Infrastructure\RelayCommand.cs" />
     <Compile Include="UI\IShellViewModel.cs" />
     <Compile Include="UI\Shell.xaml.cs">
@@ -99,7 +104,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Configuration\Config.json" />
+    <None Include="Configuration\Config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
