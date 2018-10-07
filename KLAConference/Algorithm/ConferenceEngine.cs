@@ -1,7 +1,6 @@
 ﻿using KLAConference.Entities;
 using NodaTime;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using KLAConference.Infrastructure;
 namespace KLAConference.Algorithm
