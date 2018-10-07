@@ -79,7 +79,7 @@ namespace KLAConference.UI
 
         private async Task LoadInfrastructure()
         {
-            Status = "Loading...........";
+            Status = Constants.Loading;
             // Load the infrastructure in the background
             // Note: Ideally the engine  should be loaded using Unity to avoid tight coupling
             await Task.Run(() =>
@@ -94,7 +94,7 @@ namespace KLAConference.UI
                 }
                 _conferenceEngine = new ConferenceEngine(config);
             });
-            Status = "Ready";
+            Status = Constants.Ready;
         }
 
         async Task ExecuteLoadTalks()
@@ -103,15 +103,15 @@ namespace KLAConference.UI
             var dialog = new OpenFileDialog();
 
             // Set filter for file extension and default file extension 
-            dialog.Filter = "Json files (*.json)|*.json";
+            dialog.Filter = Constants.JsonFilter;
             dialog.InitialDirectory = Path.Combine(System.IO.Path.GetDirectoryName(
-      System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase), "TestInput");
+      System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase), Constants.TestInput);
 
             Nullable<bool> result = dialog.ShowDialog();
 
             if (result == true)
             {
-                Status = "Loading Talks......";
+                Status = Constants.LoadingTalks;
                 IsResultAvailable = false;
 
                 await Task.Run(() =>
@@ -125,7 +125,7 @@ namespace KLAConference.UI
                         foreach (var talk in _talks)
                         {
                             // Assumption: Talk's name should not have any other numbers
-                            Match m = Regex.Match(talk.Name, @"\d+");
+                            Match m = Regex.Match(talk.Name, Constants.NumberRegex);
                             if (string.IsNullOrEmpty(m.Value))
                             {
                                 talk.Duration = 5;
@@ -138,13 +138,13 @@ namespace KLAConference.UI
                     }
                 });
 
-                Status = "Loaded Talks, Click To Get Schedule";
+                Status = Constants.LoadedTalks;
             }
         }
 
         async Task ExecuteGetSchedule()
         {
-            Status = "Getting the final schedule.....";
+            Status = Constants.GetFinalSchedule;
             ScheduledConference result = null;
             await Task.Run(() =>
             {
@@ -153,7 +153,7 @@ namespace KLAConference.UI
 
             if (result == null)
             {
-                Status = "Internal failure";
+                Status =Constants.InternalFailure;
                 return;
             }
             
