@@ -1,7 +1,11 @@
-﻿using KLAConference.Infrastructure;
+﻿using KLAConference.Entities;
+using KLAConference.Infrastructure;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,21 +56,21 @@ namespace KLAConference.UI
         void ExecuteLoadTalks(object parameter)
         {
             // Create OpenFileDialog 
-            Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
+            var dialog = new OpenFileDialog();
 
             // Set filter for file extension and default file extension 
-          //  dialog.DefaultExt = ".csv";
-           // dialog.Filter = "CSV Files (*.csv)|*.csv";
             dialog.Filter = "Json files (*.json)|*.json";
 
-            // Display OpenFileDialog by calling ShowDialog method 
             Nullable<bool> result = dialog.ShowDialog();
 
-            // Get the selected file name and display in a TextBox 
             if (result == true)
             {
-                // Open document 
                 string filename = dialog.FileName;
+                using (StreamReader r = new StreamReader(filename))
+                {
+                    string json = r.ReadToEnd();
+                    List<Talk> items = JsonConvert.DeserializeObject<List<Talk>>(json);
+                }
             }
         }
 

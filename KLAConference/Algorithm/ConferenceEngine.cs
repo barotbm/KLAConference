@@ -76,7 +76,7 @@ namespace KLAConference.Algorithm
                     var duration = _sessions[i].Duration;
                     var backTrackTalkId = -1;
                     var retryCount = 0;
-                    while (!AddTalksToSession(talks, i, duration, backTrackTalkId))
+                    while (!AddTalksToSession(talks, _sessions[i], backTrackTalkId))
                     {
                         // set the backTrackIndex, starting from first available talk
                         // Note: Retry using backtracking methodology
@@ -101,19 +101,19 @@ namespace KLAConference.Algorithm
             return result;
         }
 
-        private bool AddTalksToSession(IEnumerable<Talk> talks, int session, long sessionDuration, int backTrackTalkId)
+        private bool AddTalksToSession(IEnumerable<Talk> talks, Session currentSession, int backTrackTalkId)
         {
             var isSuccess = false;
             foreach (var talk in talks)
             {
                 // Proceed only if talk is not allocated to any session
-                if (talk.SessionId != 0 && talk.Id != backTrackTalkId && talk.Duration <= sessionDuration)
+                if (talk.SessionId != 0 && talk.Id != backTrackTalkId && talk.Duration <= currentSession.Duration)
                 {
-                    if (sessionDuration - talk.Duration == 0)
+                    if (currentSession.Duration - talk.Duration == 0)
                     {
                         // Found the talks for the session
-                        _sessions[session].Talks.Add(talk);
-                        talk.SessionId = _sessions[session].Id;
+                        currentSession.Talks.Add(talk);
+                        talk.SessionId = currentSession.Id;
                         isSuccess = true;
                         break;
                     }
@@ -123,8 +123,8 @@ namespace KLAConference.Algorithm
                     //}
                     else
                     {
-                        talk.SessionId = _sessions[session].Id;
-                        sessionDuration -= talk.Duration;
+                        talk.SessionId = currentSession.Id;
+                        currentSession.Duration -= talk.Duration;
                     }
                 }
             }
@@ -155,6 +155,9 @@ namespace KLAConference.Algorithm
                     AddSession(config.StartTime, config.Breaks[i].StartTime, sessionId);
                 else
                     AddSession(config.Breaks[i - 1].EndTime, config.Breaks[i].StartTime, sessionId);
+
+                // Add Break as a session
+                AddSession(config.Breaks[i].StartTime, config.Breaks[i].EndTime, sessionId++);
 
                 // Handle last session
                 if (i == config.Breaks.Count() - 1)
