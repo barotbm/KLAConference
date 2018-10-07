@@ -13,6 +13,7 @@ namespace KLAConference.Entities
         public LocalTime StartTime { get; set; }
         public LocalTime EndTime { get; set; }
         public long Duration { get; set; }
+        public SessionType Type { get; set; }
         public List<Talk> Talks { get; set; } = new List<Talk>(); // NULL object pattern - helps to avoid NULL referece exceptions
 
         /// <summary>

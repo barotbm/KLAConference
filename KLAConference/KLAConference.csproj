@@ -71,6 +71,7 @@
     <Compile Include="Entities\ScheduledConference.cs" />
     <Compile Include="Entities\ResultType.cs" />
     <Compile Include="Entities\Session.cs" />
+    <Compile Include="Entities\SessionType.cs" />
     <Compile Include="Entities\TalkType.cs" />
     <Compile Include="Infrastructure\RelayCommand.cs" />
     <Compile Include="UI\IShellViewModel.cs" />

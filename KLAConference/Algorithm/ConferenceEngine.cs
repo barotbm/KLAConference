@@ -152,29 +152,30 @@ namespace KLAConference.Algorithm
                 sessionId++;
                 // Handle first session
                 if (i == 0)
-                    AddSession(config.StartTime, config.Breaks[i].StartTime, sessionId);
+                    AddSession(config.StartTime, config.Breaks[i].StartTime, sessionId, SessionType.Talk);
                 else
-                    AddSession(config.Breaks[i - 1].EndTime, config.Breaks[i].StartTime, sessionId);
+                    AddSession(config.Breaks[i - 1].EndTime, config.Breaks[i].StartTime, sessionId, SessionType.Talk);
 
                 // Add Break as a session
-                AddSession(config.Breaks[i].StartTime, config.Breaks[i].EndTime, sessionId++);
+                AddSession(config.Breaks[i].StartTime, config.Breaks[i].EndTime, sessionId++, SessionType.Break);
 
                 // Handle last session
                 if (i == config.Breaks.Count() - 1)
                 {
-                    AddSession(config.Breaks[i].EndTime, config.EndTime, sessionId++);
+                    AddSession(config.Breaks[i].EndTime, config.EndTime, sessionId++, SessionType.Talk);
                 }
             }
 
             config.TalkTime += _sessions.Sum(c => c.Duration);
         }
 
-        private void AddSession(LocalTime startTime, LocalTime endTime, int sessionId)
+        private void AddSession(LocalTime startTime, LocalTime endTime, int sessionId, SessionType type)
         {
             Session session = new Session();
             session.Id = sessionId;
             session.StartTime = startTime;
             session.EndTime = endTime;
+            session.Type = type;
             session.Duration = (session.EndTime - session.StartTime).Minutes;
             _sessions.Add(session);
         }
