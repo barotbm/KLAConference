@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace KLAConference.Infrastructure
 {
+    // Note: We should use libraries like MVVM Light which gives this kind of basic functionality
+    // Reference for code: https://github.com/johnthiriet --> See AsyncAvoid repository
     public interface IAsyncCommand : ICommand
     {
         Task ExecuteAsync();
@@ -20,17 +19,14 @@ namespace KLAConference.Infrastructure
         private bool _isExecuting;
         private readonly Func<Task> _execute;
         private readonly Func<bool> _canExecute;
-       // private readonly IErrorHandler _errorHandler;
 
         public AsyncCommand(
             Func<Task> execute,
             Func<bool> canExecute = null
-           // IErrorHandler errorHandler = null
             )
         {
             _execute = execute;
             _canExecute = canExecute;
-          //  _errorHandler = errorHandler;
         }
 
         public bool CanExecute()
@@ -69,7 +65,7 @@ namespace KLAConference.Infrastructure
 
         void ICommand.Execute(object parameter)
         {
-            ExecuteAsync(); //.FireAndForgetSafeAsync(_errorHandler);
+            ExecuteAsync(); 
         }
         #endregion
     }

@@ -78,7 +78,6 @@
     <Compile Include="Infrastructure\AsyncCommand.cs" />
     <Compile Include="Infrastructure\BoolToVisibilityConverter.cs" />
     <Compile Include="Infrastructure\NodaTimeExtension.cs" />
-    <Compile Include="Infrastructure\RelayCommand.cs" />
     <Compile Include="UI\IShellViewModel.cs" />
     <Compile Include="UI\Shell.xaml.cs">
       <DependentUpon>Shell.xaml</DependentUpon>

@@ -75,10 +75,11 @@ namespace KLAConference.UI
 
         #endregion
 
-        private async void LoadInfrastructure()
+        #region Commands       
+
+        private async Task LoadInfrastructure()
         {
             Status = "Loading...........";
-            await Task.Delay(2000);
             // Load the infrastructure in the background
             // Note: Ideally the engine  should be loaded using Unity to avoid tight coupling
             await Task.Run(() =>
@@ -168,6 +169,8 @@ namespace KLAConference.UI
 
             Status = result.Type.ToString();
         }
+
+        #endregion
 
         #region INotifyPropertyChanged       
 
