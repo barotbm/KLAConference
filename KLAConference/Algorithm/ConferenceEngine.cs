@@ -35,6 +35,8 @@ namespace KLAConference.Algorithm
         {
             var result = new ScheduledConference();
 
+            CleanupFromPreviousSchedule();
+
             try
             {
                 if (talks == null || !talks.Any())
@@ -70,7 +72,7 @@ namespace KLAConference.Algorithm
                     }
                     result.Type = ResultType.Success;
                 }
-                
+
                 for (int i = 0; i < _sessions.Count(); i++)
                 {
                     // Clear previously scheduled talks if any
@@ -92,7 +94,6 @@ namespace KLAConference.Algorithm
                     foreach (var talk in _sessions[i].Talks)
                     {
                         talk.SessionId = _sessions[i].Id;
-                        //result.OrderedTalks.Add(talk);
                     }
                 }
             }
@@ -112,7 +113,7 @@ namespace KLAConference.Algorithm
                     if (!result.OrderedTalks.Any())
                     {
                         currentTalk.StartTime = _config.GetStartTime();
-                        
+
                     }
                     else
                     {
@@ -127,15 +128,24 @@ namespace KLAConference.Algorithm
             return result;
         }
 
+        private void CleanupFromPreviousSchedule()
+        {
+            if (_sessions.FirstOrDefault().Talks.Any())
+            {
+                CreateSessions(_config);
+            }
+        }
+
         private bool AddTalksToSession(IEnumerable<Talk> talks, Session currentSession, int backTrackTalkId)
         {
             var isSuccess = false;
 
-            if(currentSession.Type == SessionType.Break)
+            if (currentSession.Type == SessionType.Break)
             {
                 var breakAsTalk = new Talk();
                 breakAsTalk.Id = -1; // Distinguish the break as invalid Talk
-                breakAsTalk.Duration = (currentSession.EndTime - currentSession.StartTime).Minutes;
+                                     //breakAsTalk.Duration = (currentSession.EndTime - currentSession.StartTime).Minutes;
+                breakAsTalk.Duration = LocalTime.Subtract(currentSession.EndTime, currentSession.StartTime).TotalMinutes();
                 breakAsTalk.Name = $"Break ({breakAsTalk.Duration})";
                 currentSession.Talks.Add(breakAsTalk);
                 return true;
@@ -150,13 +160,13 @@ namespace KLAConference.Algorithm
                     {
                         // Found the talks for the session
                         currentSession.Talks.Add(talk);
-                       // talk.SessionId = currentSession.Id;
+                        // talk.SessionId = currentSession.Id;
                         isSuccess = true;
                         break;
                     }
                     else
                     {
-                       // talk.SessionId = currentSession.Id;
+                        // talk.SessionId = currentSession.Id;
                         currentSession.Duration -= talk.Duration;
                     }
 
@@ -169,11 +179,7 @@ namespace KLAConference.Algorithm
         #endregion
 
         #region Private Methods       
-        public void Load()
-        {
-            CreateSessions(_config);
-        }
-
+       
         /// <summary>
         /// Create configuration driven sessions
         /// </summary>
@@ -181,6 +187,7 @@ namespace KLAConference.Algorithm
         private void CreateSessions(Config config)
         {
             var sessionId = 0;
+            Cleanup();
 
             for (int i = 0; i < config.Breaks.Count(); i++)
             {
@@ -203,6 +210,12 @@ namespace KLAConference.Algorithm
 
             config.TalkTime += _sessions.Sum(c => c.Duration);
             _sessions = _sessions.OrderBy(c => c.Duration).ToList();
+        }
+
+        private void Cleanup()
+        {
+            _sessions.Clear();
+            _config.TalkTime = 0;
         }
 
         private void AddSession(LocalTime startTime, LocalTime endTime, int sessionId, SessionType type)
