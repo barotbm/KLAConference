@@ -33,6 +33,16 @@ namespace KLAConference.Algorithm
         #region IConferenceEngine members        
         public ScheduledConference Run(IEnumerable<Talk> talks)
         {
+            /* Notes:
+             * Algorithm checks for all the followingn edge cases
+             *  - Empty list of talks passed to the engine
+             *  - Total talk time is either greater than or less than the configured time
+             *  - Talks are overlapping (See IsTalksOverlappingSessions for more explaination)
+             * Here, the configured time is divided into different "Sessions" and algorithm fills each session one by one
+             * Each Session knows its capacity. So, using the logic to find the sub array that matches the given SUM
+             * Sessions are sorted to start with the smallest one
+             */
+
             var result = new ScheduledConference();
 
             CleanupFromPreviousSchedule();
