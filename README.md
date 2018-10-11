@@ -7,3 +7,5 @@ Following are the steps to use the application:
 3) See status and results to understan the state of the application
 
 
+ANGULAR UI - Started adding the Angular UI for the application
+
