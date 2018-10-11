@@ -22,6 +22,11 @@
                         <span class='glyphicon glyphicon-education'></span> Counter
                     </a>
                 </li>-->
+              <li [routerLinkActive]='["link-active"]'>
+                <a [routerLink]='["/conference"]'>
+                  <span class='glyphicon glyphicon-education'></span> KLA Conference
+                </a>
+              </li>
                 <li [routerLinkActive]='["link-active"]'>
                     <a [routerLink]='["/fetch-data"]' (click)='collapse()'>
                         <span class='glyphicon glyphicon-th-list'></span> Fetch data
